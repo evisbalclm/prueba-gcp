@@ -1,29 +1,36 @@
 name: GCP Auth Test
 on:
   push:
-    branches: [ "main" ] # Se ejecuta cada vez que subas código a main
+    branches: [ "main" ] # Se ejecuta automáticamente al subir cambios a la rama main
 
 jobs:
   test-auth:
     runs-on: ubuntu-latest
-    # IMPORTANTE: Estos permisos son obligatorios para que Workload Identity funcione
+    
+    # Permisos necesarios para intercambiar el token de GitHub por uno de Google
     permissions:
       contents: 'read'
       id-token: 'write'
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
+      # 1. Descarga el código del repositorio en el runner de GitHub
+      - name: Checkout
+        uses: actions/checkout@v4
 
-    - name: Authenticate to Google Cloud
-      id: auth
-      uses: google-github-actions/auth@v2
-      with:
-        # Reemplaza los valores de abajo con tus datos reales
-        workload_identity_provider: 'projects/908155441022/locations/global/workloadIdentityPools/github-pool/providers/github-provider'
-        service_account: 'github-actions-sa@project-271e1e87-2307-44b8-a02.iam.gserviceaccount.com'
+      # 2. Autenticación mediante Workload Identity Federation
+      - name: Authenticate to Google Cloud
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: 'projects/${{ secrets.GCP_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-pool/providers/github-provider'
+          service_account: 'github-actions-sa@${{ secrets.GCP_PROJECT_ID }}.iam.gserviceaccount.com'
 
-    - name: 'Test Google Cloud CLI'
-      run: |
-        gcloud auth list
-        gcloud projects describe project-271e1e87-2307-44b8-a02
+      # 3. Configura el CLI de gcloud (opcional pero recomendado)
+      - name: 'Set up Cloud SDK'
+        uses: google-github-actions/setup-gcloud@v2
+
+      # 4. Prueba final: Verificar que tenemos acceso al proyecto
+      - name: 'Test Google Cloud CLI'
+        run: |
+          gcloud auth list
+          gcloud projects describe ${{ secrets.GCP_PROJECT_ID }}
