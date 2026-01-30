@@ -1,6 +1,6 @@
 name: Delete GCP Bucket
 on:
-  workflow_dispatch: # Ejecución manual por seguridad
+  workflow_dispatch: # Ejecución manual por seguridad desde la pestaña Actions
 
 jobs:
   cleanup:
@@ -10,13 +10,24 @@ jobs:
       id-token: 'write'
 
     steps:
+      # 1. Checkout del repositorio (buena práctica para inicializar el entorno)
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 2. Autenticación con Google Cloud
       - name: Authenticate to Google Cloud
+        id: auth
         uses: google-github-actions/auth@v2
         with:
           workload_identity_provider: 'projects/${{ secrets.GCP_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github-pool/providers/github-provider'
           service_account: 'github-actions-sa@${{ secrets.GCP_PROJECT_ID }}.iam.gserviceaccount.com'
 
+      # 3. Configuración de las herramientas de gcloud
+      - name: 'Set up Cloud SDK'
+        uses: google-github-actions/setup-gcloud@v2
+
+      # 4. Eliminación del bucket usando el comando moderno
       - name: 'Delete Storage Bucket'
         run: |
-          # El flag -r es para borrar el contenido también
-          gsutil rm -r gs://bucket-${{ secrets.GCP_PROJECT_ID }}
+          # gcloud storage es más rápido y compatible con WIF que gsutil
+          gcloud storage rm --recursive gs://bucket-${{ secrets.GCP_PROJECT_ID }}
