@@ -1,0 +1,29 @@
+name: GCP Auth Test
+on:
+  push:
+    branches: [ "main" ] # Se ejecuta cada vez que subas código a main
+
+jobs:
+  test-auth:
+    runs-on: ubuntu-latest
+    # IMPORTANTE: Estos permisos son obligatorios para que Workload Identity funcione
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Authenticate to Google Cloud
+      id: auth
+      uses: google-github-actions/auth@v2
+      with:
+        # Reemplaza los valores de abajo con tus datos reales
+        workload_identity_provider: 'projects/project-271e1e87-2307-44b8-a02/locations/global/workloadIdentityPools/github-pool/providers/github-provider'
+        service_account: 'github-actions-sa@project-271e1e87-2307-44b8-a02.iam.gserviceaccount.com'
+
+    - name: 'Test Google Cloud CLI'
+      run: |
+        gcloud auth list
+        gcloud projects describe ${{ secrets.GCP_PROJECT_ID }} # O el ID de tu proyecto directamente
