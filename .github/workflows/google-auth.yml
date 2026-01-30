@@ -1,4 +1,4 @@
-name: GCP Auth Test
+name: GCP Auth Test V1
 on:
   push:
     branches: [ "main" ] # Se ejecuta automáticamente al subir cambios a la rama main
