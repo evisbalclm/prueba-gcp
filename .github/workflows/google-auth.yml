@@ -20,7 +20,7 @@ jobs:
       uses: google-github-actions/auth@v2
       with:
         # Reemplaza los valores de abajo con tus datos reales
-        workload_identity_provider: 'projects/project-271e1e87-2307-44b8-a02/locations/global/workloadIdentityPools/github-pool/providers/github-provider'
+        workload_identity_provider: 'projects/908155441022/locations/global/workloadIdentityPools/github-pool/providers/github-provider'
         service_account: 'github-actions-sa@project-271e1e87-2307-44b8-a02.iam.gserviceaccount.com'
 
     - name: 'Test Google Cloud CLI'
