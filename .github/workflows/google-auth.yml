@@ -26,5 +26,4 @@ jobs:
     - name: 'Test Google Cloud CLI'
       run: |
         gcloud auth list
-        gcloud projects describe project-271e1e87-2307-44b8-a02 # O el ID de tu proyecto directamente
-        #gcloud projects describe ${{ secrets.GCP_PROJECT_ID }} # O el ID de tu proyecto directamente
+        gcloud projects describe project-271e1e87-2307-44b8-a02
